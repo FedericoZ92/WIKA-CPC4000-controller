@@ -38,4 +38,24 @@ This project provides a graphical user interface (GUI) for automating pressure c
 - Ensure the CPC4000 device is connected and powered on before starting the test.
 
 ## License
+
+## Generating an Executable
+
+To create a standalone executable for Windows using PyInstaller:
+
+**Important:** Always activate your virtual environment before generating the executable. This ensures the correct dependencies are included.
+
+1. Activate your virtual environment:
+   ```powershell
+   .\.venv\Scripts\activate
+   ```
+2. Install PyInstaller:
+   ```bash
+   pip install pyinstaller
+   ```
+3. Generate the executable:
+   ```bash
+   pyinstaller --onefile wika-cpc4000-cycle-UI.py
+   ```
+4. The executable will be created in the `dist` folder. You can distribute this `.exe` file to users who do not have Python installed.
 This project is provided as-is for educational and automation purposes.
