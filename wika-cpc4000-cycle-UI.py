@@ -7,9 +7,18 @@ from tkinter import messagebox
 # --- DEFAULT VALUES ---
 def detect_com_port():
     ports = list(serial.tools.list_ports.comports())
-    if ports:
-        return ports[0].device
-    return "COM1"  # fallback if none found
+    for port in ports:
+        try:
+            ser = serial.Serial(port.device, 57600, timeout=1)
+            ser.write(b"Units?\r\n")
+            time.sleep(0.2)
+            response = ser.readline().decode(errors="ignore").strip()
+            ser.close()
+            if response and ("WIKA" in response.upper() or "CPC4000" in response.upper()):  # Adjust this check based on the actual response from the device
+                return port.device
+        except Exception:
+            continue
+    return ports[0].device if ports else "COM1"  # fallback if none found
 
 DEFAULTS = {
     "PORTA_SERIALE": detect_com_port(),
