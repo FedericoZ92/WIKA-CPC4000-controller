@@ -1,5 +1,11 @@
 # WIKA CPC4000 Cycle UI
 
+## Author
+Federico Zanetti
+
+## Date
+03-03-2026
+
 This project provides a graphical user interface (GUI) for automating pressure cycling tests on the WIKA CPC4000 pressure controller via serial communication.
 
 ## Features
