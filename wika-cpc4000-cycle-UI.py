@@ -9,7 +9,7 @@ def detect_com_port():
     ports = list(serial.tools.list_ports.comports())
     for port in ports:
         try:
-            ser = serial.Serial(port.device, 57600, timeout=1)
+            ser = serial.Serial(port.device, 57600, timeout=10)
             ser.write(b"Units?\r\n")
             time.sleep(0.2)
             response = ser.readline().decode(errors="ignore").strip()
@@ -39,18 +39,23 @@ def invia_comando(ser, comando, aspetta_risposta=False):
         return risposta
     return None
 
-def attendi_stabilita(ser):
+def attendi_stabilita(ser, max_wait_seconds=300):
     stabile = False
+    start_time = time.time()
     while not stabile:
         risposta = invia_comando(ser, "Stable?", aspetta_risposta=True)
+        print(f"[DEBUG] attendi_stabilita: risposta='{risposta}'")
         if risposta and "YES" in risposta.upper():
             stabile = True
         else:
-            time.sleep(0.5)
+            if time.time() - start_time > max_wait_seconds:
+                print(f"[DEBUG] Timeout: attesa stabilita superata ({max_wait_seconds} secondi)")
+                break
+            time.sleep(2)
 
 def esegui_test(params):
     try:
-        ser = serial.Serial(params["PORTA_SERIALE"], int(params["BAUDRATE"]), timeout=1)
+        ser = serial.Serial(params["PORTA_SERIALE"], int(params["BAUDRATE"]), timeout=10)
         print(f"Connesso al CPC4000 sulla porta {params['PORTA_SERIALE']}")
 
         print("Impostazione unità in Bar...")
@@ -62,13 +67,23 @@ def esegui_test(params):
         for i in range(1, int(params["CICLI"]) + 1):
             print(f"\n--- Inizio Ciclo {i} di {params['CICLI']} ---")
 
+
             print(f"Imposto pressione a {params['TARGET_A']} bar...")
-            invia_comando(ser, f"Setpt {params['TARGET_A']}")
+            risposta_a = invia_comando(ser, f"Setpt {params['TARGET_A']}", aspetta_risposta=True)
+            if not risposta_a:
+                print(f"[WARNING] Nessuna risposta a Setpt {params['TARGET_A']}")
+            else:
+                print(f"[DEBUG] Risposta a Setpt {params['TARGET_A']}: {risposta_a}")
             attendi_stabilita(ser)
             time.sleep(float(params["TEMPO_MANTENIMENTO"]))
 
+
             print(f"Imposto pressione a {params['TARGET_B']} bar...")
-            invia_comando(ser, f"Setpt {params['TARGET_B']}")
+            risposta_b = invia_comando(ser, f"Setpt {params['TARGET_B']}", aspetta_risposta=True)
+            if not risposta_b:
+                print(f"[WARNING] Nessuna risposta a Setpt {params['TARGET_B']}")
+            else:
+                print(f"[DEBUG] Risposta a Setpt {params['TARGET_B']}: {risposta_b}")
             attendi_stabilita(ser)
             time.sleep(float(params["TEMPO_MANTENIMENTO"]))
 
