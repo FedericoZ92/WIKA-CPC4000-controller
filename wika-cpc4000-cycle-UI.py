@@ -23,10 +23,10 @@ def detect_com_port():
 DEFAULTS = {
     "PORTA_SERIALE": detect_com_port(),
     "BAUDRATE": 57600,
-    "CICLI": 100,
+    "CICLI": 10,
     "TEMPO_MANTENIMENTO": 1,
-    "TARGET_A": 0.1,
-    "TARGET_B": 10
+    "TARGET_A": 1,
+    "TARGET_B": 5
 }
 
 def invia_comando(ser, comando, aspetta_risposta=False):
